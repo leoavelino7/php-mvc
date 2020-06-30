@@ -1,0 +1,44 @@
+<ifModule mod_rewrite.c>
+    RewriteEngine on
+
+    RewriteBase /
+
+    # Remove the 'WWW'
+    RewriteCond %{HTTP_HOST} ^www\.(.*)
+    RewriteRule (.*) http://%1/$1 [R=301,L]
+
+    # Redirect to https if port = 80
+    #RewriteCond %{SERVER_PORT} 80
+    #RewriteRule ^(.*)$ https://seusitecomhttps.com.br/$1 [R,L]
+
+    # Remove php from the end of the URL
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{THE_REQUEST} ^GET\ /[^?\s]+\.php
+    RewriteRule (.*)\.php$ /$1/ [L,R=301]
+
+    # Rewriting to access public archives
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^public/(.*)\.(gif|jpg|png|jpeg|svg|css|js|json|swf)$ app/views/public/$1.$2 [L,NC]
+
+    # Executes the same file (php) without extension
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^(admin)/$ app/views/pages/$1/index.php [L]
+    RewriteRule ^controller/(.*)/$ app/controllers/$1.php [L]
+    RewriteRule (.*)/$ app/$1.php [L]
+
+    # Force bar
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_URI} !\..+$
+    RewriteCond %{REQUEST_URI} !/$
+    RewriteRule (.*) /$1/ [R=301,L]
+
+    # Define index file
+    DirectoryIndex app/views/pages/index.php
+ 
+    ## Treating errors
+    ErrorDocument 404 /app/views/pages/errors/404.php
+ 
+    #Options -Indexes
+</ifModule>
